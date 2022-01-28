@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 public class UserCreateDto {
     @NotNull
     @NotEmpty
-    private String user;
+    private String username;
     @NotNull @NotEmpty
     private String referredByCode;
     @NotNull @NotEmpty

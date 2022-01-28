@@ -2,7 +2,6 @@ package com.korayaks.springbootreferral.controller;
 
 import com.korayaks.springbootreferral.dto.UserCreateDto;
 import com.korayaks.springbootreferral.service.UserService;
-import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,9 +10,12 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/user")
-@AllArgsConstructor
 public class UserController {
     private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/username/{username}")
     public ResponseEntity<?> getUserByUsername(@PathVariable String username){

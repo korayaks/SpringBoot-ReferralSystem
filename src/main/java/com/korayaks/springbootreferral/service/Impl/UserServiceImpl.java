@@ -6,7 +6,6 @@ import com.korayaks.springbootreferral.model.User;
 import com.korayaks.springbootreferral.repo.UserRepository;
 import com.korayaks.springbootreferral.service.UserService;
 import com.korayaks.springbootreferral.util.RandomStringGenerator;
-import lombok.AllArgsConstructor;
 
 
 import org.modelmapper.ModelMapper;
@@ -17,14 +16,17 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@AllArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Value("${defaultRefCount}")
-    private int defaultRefCount;
     private final RandomStringGenerator randomStringGenerator;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+
+    public UserServiceImpl(RandomStringGenerator randomStringGenerator, UserRepository userRepository, ModelMapper modelMapper) {
+        this.randomStringGenerator = randomStringGenerator;
+        this.userRepository = userRepository;
+        this.modelMapper = modelMapper;
+    }
 
     @Override
     public UserReadDto getUserByUsername(String username) {
@@ -33,7 +35,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserReadDto> getAllByReferralCode(String referralCode) {
-        if (userRepository.existsUserByReferralCode(referralCode)) {
+        if (!userRepository.existsUserByReferralCode(referralCode)) {
             throw new RuntimeException("user not found with given code");
         }
         return modelMapper.map(userRepository.findAllByReferredByCode(referralCode), new TypeToken<List<UserReadDto>>() {
@@ -47,7 +49,7 @@ public class UserServiceImpl implements UserService {
         }
         int referredUserCount = getAllByReferralCode(userCreateDto.getReferredByCode()).size();
         final var user = modelMapper.map(userCreateDto, User.class);
-        if (referredUserCount < defaultRefCount) {
+        if (referredUserCount < 2) {
             user.setReferralCode(generateCode());
         } else {
             throw new RuntimeException("max person count has been reached");
@@ -61,6 +63,6 @@ public class UserServiceImpl implements UserService {
         do {
             generated = randomStringGenerator.generate();
         } while (userRepository.existsUserByReferralCode(generated));
-        return "";
+        return generated;
     }
 }
